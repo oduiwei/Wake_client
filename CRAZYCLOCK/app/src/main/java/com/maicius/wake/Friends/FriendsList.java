@@ -7,12 +7,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
+import com.maicius.wake.InterChange.SleepHistory;
 import com.maicius.wake.alarmClock.MainActivity;
 import com.maicius.wake.alarmClock.R;
 import com.maicius.wake.web.WebService;
@@ -31,6 +34,7 @@ public class FriendsList extends Activity {
     private List<Map<String, Object>> listItems;
 
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("Activity", "Enter Activity --> FriendList");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends_list);
 
@@ -115,6 +119,14 @@ public class FriendsList extends Activity {
                 @Override
                 public void run() {
                     dialog.dismiss();//关闭进度框
+
+                    //判断是否连接上服务器
+                    if (returnInfo.equals("404")) {
+                        Toast.makeText(FriendsList.this, "查询失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        FriendsList.this.finish();
+                        return;
+                    }
+
                     if (returnInfo.equals("failed")) {         //返回错误信息
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FriendsList.this);
                         alertDialog.setTitle("错误信息").setMessage("获取数据失败，请检查网络连接或重新登录!");

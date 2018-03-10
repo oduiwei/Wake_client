@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.maicius.wake.alarmClock.R;
 import com.maicius.wake.chart.IChart;
@@ -58,6 +59,7 @@ public class GetUpHistory extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("Activity", "Enter Activity --> GetUpHistory");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_up_history);
 
@@ -153,7 +155,6 @@ public class GetUpHistory extends Activity {
                 startActivity(intent);
             }
         });
-
 
         ImageView image_curve_1 = (ImageView) findViewById(R.id.curve_1);
         image_curve_1.setOnClickListener(new View.OnClickListener() {
@@ -290,12 +291,19 @@ public class GetUpHistory extends Activity {
         public void run() {
             m_responseInfo = WebService.executeHttpGet(m_username, WebService.State.GetTimeList);
             // m_responseInfo = "2017-4-1 10:00:12#2017-4-4 11:00:23#2017-4-4 9:00:43#2017-4-5 7:00:56#2017-4-6 6:00:35#2017-4-7 8:30:45#2017-4-8 7:05:23#2017-4-20 10:00:09#2017-4-27 10:30:00#";
-            Log.v("ikuto", "login:" + m_responseInfo);
+//            Log.v("ikuto", "login:" + m_responseInfo);
             m_handler.post(new Runnable() {
                 @Override
                 public void run() {
 
                     m_proDialog.dismiss();
+
+                    //判断是否连接上服务器
+                    if (m_responseInfo.equals("404")) {
+                        Toast.makeText(GetUpHistory.this, "查询失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        GetUpHistory.this.finish();
+                        return;
+                    }
 
                     if (m_responseInfo.equals("failed")) {
 
@@ -310,7 +318,7 @@ public class GetUpHistory extends Activity {
                         alertDialog.create().show();
 
                     } else {
-                        Log.v("ikuto", m_responseInfo);
+//                        Log.v("ikuto", m_responseInfo);
                         mInitList();
                     }
                 }

@@ -64,6 +64,7 @@ public class UserSpace extends NetEventActivity {
 //    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("Activity", "Enter Activity --> UserSpace");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_space);
         netStateView = (TextView)findViewById(R.id.InterDetector);
@@ -225,7 +226,7 @@ public class UserSpace extends NetEventActivity {
                 dbManager.deleteAppUser("greeting");
                 dbManager.deleteAppUser("appUser");
                 dbManager.close();
-                disableSleepTime();
+//                disableSleepTime();
 
                 UserSpace.this.finish();
             }
@@ -319,4 +320,9 @@ public class UserSpace extends NetEventActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disableSleepTime();
+    }
 }

@@ -49,6 +49,7 @@ public class SleepHistory extends Activity {
     private String username;
     private List<Map<String, Object>> listItems;
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("Activity", "Enter Activity --> SleepHistory");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sleep_history);
         Intent intent = getIntent();
@@ -70,6 +71,14 @@ public class SleepHistory extends Activity {
                 @Override
                 public void run() {
                     dialog.dismiss();//关闭进度框
+
+                    //判断是否连接上服务器
+                    if (returnInfo.equals("404")) {
+                        Toast.makeText(SleepHistory.this, "查询失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        SleepHistory.this.finish();
+                        return;
+                    }
+
                     if (returnInfo.equals("failed")) {         //返回错误信息
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(SleepHistory.this);
                         alertDialog.setTitle("提示").setMessage("未知错误，请稍后重试");

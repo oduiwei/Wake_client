@@ -101,7 +101,8 @@ public class LogIn extends NetEventActivity {
         @Override
         public void run() {
                 info = WebService.executeHttpGet(username.getText().toString(), password.getText().toString(), WebService.State.LogIn);
-                Log.v("sss", "login:" + info);
+//                Log.v("sss", "login:" + info);
+                Log.i("ReturnData", "返回结果是：" + info);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -121,7 +122,7 @@ public class LogIn extends NetEventActivity {
                             String info_success = st.nextToken();
                             String info_nickname = st.nextToken();
                             if (info_success.equals("success")) {
-                                Log.v("sss", "start AppUser space!");
+//                                Log.v("sss", "start AppUser space!");
                             /*更新Mainactivity的用户名和昵称，同时将登陆信息保存到本地Sqlite数据库*/
                                 DBManager dbManager = new DBManager(LogIn.this);
                                 MainActivity.s_nickname = info_nickname;

@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.StringTokenizer;
 
@@ -64,11 +66,19 @@ public class UserInfo extends Activity {
         @Override
         public void run() {
             m_info = WebService.executeHttpGet(MainActivity.s_userName, WebService.State.GetUserInfo);
-            Log.v("sss", "login:" + m_info);
+//            Log.v("sss", "login:" + m_info);
+            Log.i("ReturnData", "返回结果是：" + m_info);
             m_handler.post(new Runnable() {
                 @Override
                 public void run() {
                     m_proDialog.dismiss();
+
+                    //判断是否连接上服务器
+                    if (m_info.equals("404")) {
+                        Toast.makeText(UserInfo.this, "查询失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        UserInfo.this.finish();
+                        return;
+                    }
 
                     if (m_info.equals("failed")) {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserInfo.this);
@@ -82,7 +92,7 @@ public class UserInfo extends Activity {
                         alertDialog.create().show();
 
                     } else {
-                        Log.v("sss***************", m_info);
+//                        Log.v("sss***************", m_info);
                         StringTokenizer st = new StringTokenizer(m_info, "#");
                         String telephone = st.nextToken();
                         String info_nickname = st.nextToken();
@@ -101,7 +111,8 @@ public class UserInfo extends Activity {
         public void run() {
             m_saveInfo = WebService.executeHttpGet(m_telephone.getText().toString(),m_info_nickname.getText().toString(),
                     m_brief_intro.getText().toString());
-            Log.v("sss", "login:" + m_saveInfo);
+//            Log.v("sss", "login:" + m_saveInfo);
+            Log.d("ReturnData", "返回结果是：" + m_saveInfo);
             m_handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -122,7 +133,7 @@ public class UserInfo extends Activity {
                         alertDialog.create().show();
 
                     } else {
-                        Log.v("sss***************", m_saveInfo);
+//                        Log.v("sss***************", m_saveInfo);
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserInfo.this);
                         alertDialog.setTitle("提示").setMessage("更新个人信息成功！");
                         alertDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {

@@ -161,13 +161,13 @@ public class DBManager{
 
     public Cursor query(String table){
         Cursor c = db.rawQuery("select * from "+table+"", null);
-        Log.w("maicius", c.getCount()+"table:"+table);
+//        Log.w("maicius", c.getCount()+"table:"+table);
         return c;
     }
     public Cursor query(String col, String table){
 
         Cursor c = db.rawQuery("select "+col+" from "+table+"", null);
-        Log.w("maicius", c.getCount()+"table:"+table);
+//        Log.w("maicius", c.getCount()+"table:"+table);
         return c;
     }
 

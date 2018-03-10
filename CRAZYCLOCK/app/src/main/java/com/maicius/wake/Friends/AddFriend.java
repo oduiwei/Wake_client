@@ -152,7 +152,7 @@ public class AddFriend extends Activity implements ActionBar.TabListener, Contac
                 break;//只读一个
             }
             //将获取到的用户名和电话插入map中
-            Log.v("sss", "Name:" + name + " Tel:" + telnum);
+//            Log.v("sss", "Name:" + name + " Tel:" + telnum);
             tmp.put(name, telnum);
             phones.close();
         }

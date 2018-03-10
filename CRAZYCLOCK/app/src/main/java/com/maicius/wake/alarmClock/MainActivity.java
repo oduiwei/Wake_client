@@ -363,8 +363,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
     protected void onDestroy() {
         super.onDestroy();
         //dbManager = new DBManager(MainActivity.this);
-        UserSpace userSpace = new UserSpace();
-        userSpace.disableSleepTime();
+//        UserSpace userSpace = new UserSpace();
+//        userSpace.disableSleepTime();
         //dbManager.deleteAppUser("sleepTime");
         ToastMaster.cancelToast();
         mCursor.close();

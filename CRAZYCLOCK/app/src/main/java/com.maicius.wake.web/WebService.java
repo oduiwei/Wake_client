@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -34,12 +35,8 @@ public class WebService extends Activity{
         GetGetUpTip
     }
     // IP地址
-    private static String IP = "116.62.41.211:8080/wake";
-    //private static String IP = "192.168.1.112:8080";
-    //private static String IP = "192.168.1.135:8080";     //服务器程序基址
-    //private static String IP = "192.168.191.1:8080";             //本地测试地址
-    //private static String base = "http://" + IP +"/HelloWeb";   //本地程序基址
-   private static String base = "http://" + IP;
+    private static String IP = "192.168.137.1:8080";
+    private static String base = "http://" + IP;
     /**
      * DoGet
      */
@@ -59,6 +56,8 @@ public class WebService extends Activity{
             }
             return null;
 
+        } catch (SocketTimeoutException ex) {
+            Log.e("Error", "服务器连接超时...");
         } catch (Exception e) {
             e.printStackTrace();
             //return "服务器连接超时...";
@@ -77,7 +76,7 @@ public class WebService extends Activity{
             }
 
         }
-        return "服务器连接超时...";
+        return "404";
     }
     /**
      * 登录
@@ -151,7 +150,8 @@ public class WebService extends Activity{
                 path = base +"/GetGetUpTip";
         }
         path = path + "?username=" + username;
-        Log.v("sss", path);
+//        Log.v("sss", path);
+        Log.i("URL", "请求地址是：" + path);
         return doHttpGet(path);
     }
 
@@ -190,7 +190,8 @@ public class WebService extends Activity{
         try {
             path = path + "?username=" + username + "&nickname="
                     + URLEncoder.encode(nickname, "UTF-8") + "&brief_intro=" + URLEncoder.encode(brief_intro, "UTF-8");
-            Log.v("sss", path);
+//            Log.v("sss", path);
+            Log.i("URL", "请求地址是：" + path);
         }catch(UnsupportedEncodingException e){
             e.printStackTrace();
         }

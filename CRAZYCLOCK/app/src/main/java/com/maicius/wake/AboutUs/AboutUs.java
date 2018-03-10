@@ -21,7 +21,7 @@ public class AboutUs extends Activity{
     private Button sendButton;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v("sss", "******************enter about us!");
+        Log.d("Activity", "Enter Activity --> AboutUs");
         setContentView(R.layout.about_us);
         sendButton = (Button) findViewById(R.id.sendMsg);
         sendButton.setOnClickListener(new View.OnClickListener() {
