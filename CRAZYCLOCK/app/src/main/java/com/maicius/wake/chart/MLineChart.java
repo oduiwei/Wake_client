@@ -17,6 +17,7 @@ import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -106,13 +107,18 @@ public class MLineChart extends AbstractChart {
                 StringTokenizer st2 = new StringTokenizer(time, ":");
                 int hour = Integer.parseInt(st2.nextToken());
                 int minute = Integer.parseInt(st2.nextToken());
-                int second = Integer.parseInt(st2.nextToken());
+//                int second = Integer.parseInt(st2.nextToken());
+                int second = (int)Float.parseFloat(st2.nextToken());
                 double tm = hour + minute / 60.0 + second / 3600.0;
+                //描点
                 series.add(fmt.parse(date), tm);
 
             }
         } catch (ParseException e) {
             e.printStackTrace();
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
+            Log.e("Error", "字符串解析整型失败！--> MLineChart.mGetDateDataset");
         }
 
         dataset.addSeries(series);

@@ -32,7 +32,9 @@ public class WebService extends Activity{
         GetSleepTime,
         SearchFriend,
         SetGetUpTip,
-        GetGetUpTip
+        GetGetUpTip,
+        GetUpTimeHistory,
+        GetSleepTimeHistory
     }
     // IP地址
     private static String IP = "192.168.137.1:8080";
@@ -41,6 +43,7 @@ public class WebService extends Activity{
      * DoGet
      */
     private static String doHttpGet(String path){
+        Log.i("URL", "请求地址是：" + path);
         HttpURLConnection conn = null;
         InputStream is = null;
         try {
@@ -78,6 +81,27 @@ public class WebService extends Activity{
         }
         return "404";
     }
+
+    public static String executeHttpGetWithThreeParams(String param1, String param2, String param3, State state) {
+        String path = "";
+        switch (state) {
+            // param1 --> username || param2 --> start || param3 --> end
+            case GetUpTimeHistory:
+                path = base + "/GetUpTimeHistory?username=" + param1 + "&start=" + param2 + "&end=" + param3;
+                break;
+            // param1 --> username || param2 --> start || param3 --> end
+            case GetSleepTimeHistory:
+                path = base + "/GetSleepTimeHistory?username=" + param1 + "&start=" + param2 + "&end=" + param3;
+                break;
+        }
+
+        return doHttpGet(path);
+    }
+
+    public static String executeHttpGetWithTwoParams(String param1, String param2, State state) {
+        return "";
+    }
+
     /**
      * 登录
      */
@@ -151,7 +175,7 @@ public class WebService extends Activity{
         }
         path = path + "?username=" + username;
 //        Log.v("sss", path);
-        Log.i("URL", "请求地址是：" + path);
+//        Log.i("URL", "请求地址是：" + path);
         return doHttpGet(path);
     }
 
@@ -191,7 +215,7 @@ public class WebService extends Activity{
             path = path + "?username=" + username + "&nickname="
                     + URLEncoder.encode(nickname, "UTF-8") + "&brief_intro=" + URLEncoder.encode(brief_intro, "UTF-8");
 //            Log.v("sss", path);
-            Log.i("URL", "请求地址是：" + path);
+//            Log.i("URL", "请求地址是：" + path);
         }catch(UnsupportedEncodingException e){
             e.printStackTrace();
         }

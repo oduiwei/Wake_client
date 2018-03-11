@@ -21,6 +21,11 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.maicius.wake.Utils.DateUtils;
 import com.maicius.wake.alarmClock.R;
 import com.maicius.wake.chart.IChart;
 import com.maicius.wake.chart.MBarChart;
@@ -33,25 +38,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 
 public class GetUpHistory extends Activity {
 
-    static public ArrayList<String> times = new ArrayList<String>();
+    static public ArrayList<String> times = new ArrayList<String>();  //睡眠数据缓存,将会被用来渲染图表
 
     private static Handler m_handler = new Handler();
     private SimpleAdapter m_simpleAdapter;
-    private ListView m_listView;
-    private Spinner m_spinner;
+    private ListView m_listView;             //界面中用来显示数据的列表控件
+    private Spinner m_spinner;               //选择时间段的下拉菜单控件
     private ProgressDialog m_proDialog;
-    private ArrayList<HashMap<String, Object>> m_listViewStrings = new ArrayList<HashMap<String, Object>>();
-    private ArrayList<String> m_spinnerListStrings = new ArrayList<String>();
-    private String m_responseInfo = "";
+    private ArrayList<HashMap<String, Object>> m_listViewStrings = new ArrayList<HashMap<String, Object>>();//睡眠数据与界面列表对象缓存
+    private ArrayList<String> m_spinnerListStrings = new ArrayList<String>();  //选择时间段下拉菜单列表内容
+    private String m_responseInfo = "";      //从服务器获取的数据
     private String m_username;
     private IChart m_timeChart = new MLineChart();
     private IChart m_barChart = new MBarChart();
     private IChart m_pieChart = new MPieChart();
-    private TimeFilter m_timeFilterID;
+    private TimeFilter m_timeFilterID;       //用户选择的时间段
 
     private enum TimeFilter {
         NO_LIMIT, LAST_WEEK, LAST_MONTH, LAST_YEAR, USER_DEFINED
@@ -66,6 +70,12 @@ public class GetUpHistory extends Activity {
         mInit();
     }
 
+    /**
+     * 功能：长按起床记录时弹出菜单，此方法设置菜单选项
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
@@ -73,6 +83,11 @@ public class GetUpHistory extends Activity {
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
+    /**
+     * 功能：长按起床记录时弹出菜单，此方法设置长按菜单内容后动作
+     * @param item
+     * @return
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -134,6 +149,7 @@ public class GetUpHistory extends Activity {
                         m_timeFilterID = TimeFilter.NO_LIMIT;
                         break;
                 }
+                //每次更新过滤选项，重新向服务器获取数据
                 mUpdateList();
             }
 
@@ -143,6 +159,7 @@ public class GetUpHistory extends Activity {
             }
         });
 
+        //折线图
         ImageView image_curve = (ImageView) findViewById(R.id.curve);
         image_curve.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -156,6 +173,7 @@ public class GetUpHistory extends Activity {
             }
         });
 
+        //饼状图
         ImageView image_curve_1 = (ImageView) findViewById(R.id.curve_1);
         image_curve_1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -169,7 +187,7 @@ public class GetUpHistory extends Activity {
             }
         });
 
-
+        //条形图
         ImageView image_curve_2 = (ImageView) findViewById(R.id.curve_2);
         image_curve_2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -179,35 +197,41 @@ public class GetUpHistory extends Activity {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                startActivity(intent);
+                //startActivity(intent);
             }
         });
 
         registerForContextMenu(m_listView);
 
         //创建子线程
-        new Thread(new ThreadGetHistory()).start();
+//        new Thread(new ThreadGetHistory()).start();
     }
 
     private void mInitList() {
-        times.clear();
-        m_listViewStrings.clear();
-        StringTokenizer st = new StringTokenizer(m_responseInfo, "#");
+        times.clear();                         //清空睡眠数据缓存
+        m_listViewStrings.clear();             //清空界面列表项数据缓存
+
+        //解析服务器返回数据
         int id = 0;
-        while (st.hasMoreTokens()) {
+        JsonParser jsonParser = new JsonParser();
+        JsonObject jsonObject = jsonParser.parse(m_responseInfo).getAsJsonObject();
+        JsonArray jsonArray = jsonObject.getAsJsonArray("data");
+
+        for (JsonElement element : jsonArray) {
             id++;
-            String tmp = st.nextToken();
-            String strWords[] = tmp.split(" ");
+            String current = element.getAsString();
+            String strWords[] = current.split(" ");
             String strDates[] = strWords[0].split("-");
             String strTimes[] = strWords[1].split(":");
-            if (!tmp.equals("")) {
-                HashMap<String, Object> map = new HashMap<String, Object>();
+
+            if (!current.equals("")) {
+                HashMap<String, Object> map = new HashMap<>();
                 map.put("ItemImage", R.drawable.ic_dialog_time);
                 map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
                         "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
                 map.put("ItemID", "记录" + id);
                 m_listViewStrings.add(map);
-                times.add(tmp);
+                times.add(current);
             }
         }
         m_simpleAdapter = new SimpleAdapter(this, m_listViewStrings,
@@ -219,32 +243,8 @@ public class GetUpHistory extends Activity {
     }
 
     private void mUpdateList() {
-        if (m_responseInfo.equals(""))
-            return;
-        times.clear();
-        m_listViewStrings.clear();
-        StringTokenizer st = new StringTokenizer(m_responseInfo, "#");
-        int id = 0;
-        while (st.hasMoreTokens()) {
-            id++;
-            String tmp = st.nextToken();
-            if (!mCheckTime(tmp)) {
-                continue;
-            }
-            String strWords[] = tmp.split(" ");
-            String strDates[] = strWords[0].split("-");
-            String strTimes[] = strWords[1].split(":");
-            if (!tmp.equals("")) {
-                HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put("ItemImage", R.drawable.ic_dialog_time);
-                map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
-                        "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
-                map.put("ItemID", "记录" + id);
-                m_listViewStrings.add(map);
-                times.add(tmp);
-            }
-        }
-        m_simpleAdapter.notifyDataSetChanged();
+        //启动新的线程向服务器获取数据
+        new Thread(new ThreadGetHistory()).start();
     }
 
     private Boolean mCheckTime(String strTime) {
@@ -289,9 +289,27 @@ public class GetUpHistory extends Activity {
     public class ThreadGetHistory implements Runnable {
         @Override
         public void run() {
-            m_responseInfo = WebService.executeHttpGet(m_username, WebService.State.GetTimeList);
-            // m_responseInfo = "2017-4-1 10:00:12#2017-4-4 11:00:23#2017-4-4 9:00:43#2017-4-5 7:00:56#2017-4-6 6:00:35#2017-4-7 8:30:45#2017-4-8 7:05:23#2017-4-20 10:00:09#2017-4-27 10:30:00#";
-//            Log.v("ikuto", "login:" + m_responseInfo);
+            //获取今天日期
+            String end = DateUtils.getTodayDate();
+            String start = "";
+            if (m_timeFilterID == TimeFilter.NO_LIMIT) {
+                start = "";
+            } else if (m_timeFilterID == TimeFilter.LAST_WEEK) {
+                //获取本周一日期
+                start = DateUtils.getMondayOfWeek();
+            } else if (m_timeFilterID == TimeFilter.LAST_MONTH) {
+                //获取本月一号日期
+                start = DateUtils.getFirstDayOfMonth();
+            } else if (m_timeFilterID == TimeFilter.LAST_YEAR) {
+                //获取今年第一天日期
+                start = DateUtils.getFirstDayOfYear();
+            } else {
+                start = "";
+                end = "";
+            }
+            //Log.d("Variable", start + " || " + end);
+            m_responseInfo = WebService.executeHttpGetWithThreeParams(m_username, start, end, WebService.State.GetUpTimeHistory);
+            Log.i("ResultData", "返回数据为：" + m_responseInfo);
             m_handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -318,7 +336,6 @@ public class GetUpHistory extends Activity {
                         alertDialog.create().show();
 
                     } else {
-//                        Log.v("ikuto", m_responseInfo);
                         mInitList();
                     }
                 }

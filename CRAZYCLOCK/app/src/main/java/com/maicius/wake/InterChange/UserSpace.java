@@ -192,7 +192,8 @@ public class UserSpace extends NetEventActivity {
         });
         image_exit_main.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivity(new Intent(UserSpace.this, MainActivity.class));
+//                startActivity(new Intent(UserSpace.this, MainActivity.class));
+                UserSpace.this.finish();
             }
         });
         image_about_us.setOnClickListener(new View.OnClickListener() {

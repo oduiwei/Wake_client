@@ -21,6 +21,10 @@ import android.widget.SimpleAdapter;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.maicius.wake.DBmanager.DBManager;
 import com.maicius.wake.DBmanager.RecordingUser;
 import com.maicius.wake.DBmanager.ScreenUser;
@@ -66,7 +70,9 @@ public class SleepHistory extends Activity {
     public class MyThread implements Runnable {
         @Override
         public void run() {
-            returnInfo = WebService.executeHttpGet(username, WebService.State.GetSleepTime);
+//            returnInfo = WebService.executeHttpGet(username, WebService.State.GetSleepTime);
+            returnInfo = WebService.executeHttpGetWithThreeParams(username, "", "", WebService.State.GetSleepTimeHistory);
+            Log.i("ResultData", "返回数据为：" + returnInfo);
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -97,18 +103,22 @@ public class SleepHistory extends Activity {
         }
     }
     private void initList() {
-        StringTokenizer st = new StringTokenizer(returnInfo, "#");
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(returnInfo).getAsJsonObject();
+        JsonArray jsonArray = jsonObject.getAsJsonArray("data");
+
         int id = 0;
-        while (st.hasMoreTokens()) {
+        for (JsonElement element : jsonArray) {
             id++;
-            String tmp = st.nextToken();
-            if (!tmp.equals("")) {
-                HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put("ItemImage", R.drawable.ic_dialog_time);
-                map.put("ItemTitle", tmp);
-                map.put("ItemID", "时间" + id + ": ");
-                listItems.add(map);
-            }
+            JsonObject tmp = element.getAsJsonObject();
+            String key = tmp.keySet().iterator().next();
+            String value = tmp.get(key).getAsString();
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("ItemImage", R.drawable.ic_dialog_time);
+            map.put("ItemTitle", value);
+            map.put("ItemID", "时间" + id + ": ");
+            listItems.add(map);
         }
 
         SimpleAdapter mSimpleAdapter = new SimpleAdapter(this, listItems,
