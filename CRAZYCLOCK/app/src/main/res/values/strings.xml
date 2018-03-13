@@ -120,7 +120,7 @@
     ////////////////AChartEngine使用-end
 
     <string name="getupHistory_share">分享</string>
-    <string name="getupHistory_shareContent">来自%1$s的分享\n %2$s的起床时间: %3$s</string>
+    <string name="getupHistory_shareContent">来自%1$s的分享\n %2$s的%3$s: %4$s</string>
     <string name="getupHistory_shareTitle">分享起床时间到</string>
     <string name="getupHistory_spinner_str1">无限制</string>
     <string name="getupHistory_spinner_str2">最近一周</string>

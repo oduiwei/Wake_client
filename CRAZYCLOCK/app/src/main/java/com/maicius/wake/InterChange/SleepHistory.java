@@ -11,39 +11,26 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.maicius.wake.DBmanager.DBManager;
-import com.maicius.wake.DBmanager.RecordingUser;
-import com.maicius.wake.DBmanager.ScreenUser;
-import com.maicius.wake.alarmClock.MainActivity;
 import com.maicius.wake.alarmClock.R;
-import com.maicius.wake.web.ScreenListener;
 import com.maicius.wake.web.WebService;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
-/**
- * Created by Maicius on 2016/12/22.
- */
+
 public class SleepHistory extends Activity {
 
     private String returnInfo;
@@ -63,7 +50,7 @@ public class SleepHistory extends Activity {
         dialog.setMessage("正在获取历史信息，请稍后...");
         dialog.setCancelable(false);
         dialog.show();
-        m_list = (ListView) findViewById(R.id.sleep_history);
+        m_list = (ListView) findViewById(R.id.timeList);
         listItems = new ArrayList<Map<String, Object>>();
         new Thread(new MyThread()).start();
     }

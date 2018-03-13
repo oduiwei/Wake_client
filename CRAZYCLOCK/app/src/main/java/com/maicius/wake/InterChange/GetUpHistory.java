@@ -38,27 +38,37 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class GetUpHistory extends Activity {
 
-    static public ArrayList<String> times = new ArrayList<String>();  //睡眠数据缓存,将会被用来渲染图表
+    static public ArrayList<String> times = new ArrayList<String>();
+    static public LinkedHashMap<String, String> sleeptimes = new LinkedHashMap<>(); //睡眠数据缓存,将会被用来渲染图表
+    static public LinkedHashMap<String, LinkedHashMap<String, String>> durationData = new LinkedHashMap<>(); //睡眠时长缓存，将被用来渲染图表
 
     private static Handler m_handler = new Handler();
     private SimpleAdapter m_simpleAdapter;
     private ListView m_listView;             //界面中用来显示数据的列表控件
     private Spinner m_spinner;               //选择时间段的下拉菜单控件
+    private Spinner m_kindSpinner;            //选择数据类型的下拉菜单控件
     private ProgressDialog m_proDialog;
     private ArrayList<HashMap<String, Object>> m_listViewStrings = new ArrayList<HashMap<String, Object>>();//睡眠数据与界面列表对象缓存
     private ArrayList<String> m_spinnerListStrings = new ArrayList<String>();  //选择时间段下拉菜单列表内容
+    private ArrayList<String> m_kindSpinnerListStrings = new ArrayList<>();    //选择数据类型下拉菜单列表内容
     private String m_responseInfo = "";      //从服务器获取的数据
     private String m_username;
-    private IChart m_timeChart = new MLineChart();
-    private IChart m_barChart = new MBarChart();
-    private IChart m_pieChart = new MPieChart();
+    private IChart m_timeChart = new MLineChart();  //折线图
+    private IChart m_barChart = new MBarChart();    //柱状图
+    private IChart m_pieChart = new MPieChart();    //饼状图
     private TimeFilter m_timeFilterID;       //用户选择的时间段
+    public static KindFilter m_kindFilterID;       //用户选择的数据类型
 
     private enum TimeFilter {
         NO_LIMIT, LAST_WEEK, LAST_MONTH, LAST_YEAR, USER_DEFINED
+    }
+
+    public enum KindFilter {
+        GET_UP, SLEEP_TIME, SLEEP_DURATION
     }
 
     @Override
@@ -93,7 +103,22 @@ public class GetUpHistory extends Activity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         String strTime = m_listViewStrings.get(info.position).get("ItemTitle").toString();
         String strUserName = m_username;
-        String strShared = String.format(getResources().getString(R.string.getupHistory_shareContent), strUserName, strUserName, strTime);
+        String kind = "";
+        switch(m_kindFilterID) {
+            case GET_UP:
+                kind = "起床时间";
+                break;
+            case SLEEP_TIME:
+                kind = "睡觉时间";
+                break;
+            case SLEEP_DURATION:
+                kind = "睡眠时长";
+                break;
+            default:
+                kind = "起床时间";
+                break;
+        }
+        String strShared = String.format(getResources().getString(R.string.getupHistory_shareContent), strUserName, strUserName, kind, strTime);
 
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
@@ -106,6 +131,7 @@ public class GetUpHistory extends Activity {
     }
 
     private void mInit() {
+        // 初始化弹框
         m_proDialog = new ProgressDialog(GetUpHistory.this);
         m_proDialog.setTitle("提示");
         m_proDialog.setMessage("正在获取历史信息，请稍后...");
@@ -114,16 +140,53 @@ public class GetUpHistory extends Activity {
 
         m_username = this.getIntent().getStringExtra("username");
         m_timeFilterID = TimeFilter.NO_LIMIT;
+        m_kindFilterID = KindFilter.GET_UP;
         m_listView = (ListView) findViewById(R.id.timeList);
 
+        // 初始化下拉菜单内容
         Resources res = getResources();
         m_spinner = (Spinner) findViewById(R.id.timeSpinner);
+        m_kindSpinner = (Spinner) findViewById(R.id.kindSpinner);
         m_spinnerListStrings.add(res.getString(R.string.getupHistory_spinner_str1));
         m_spinnerListStrings.add(res.getString(R.string.getupHistory_spinner_str2));
         m_spinnerListStrings.add(res.getString(R.string.getupHistory_spinner_str3));
         m_spinnerListStrings.add(res.getString(R.string.getupHistory_spinner_str4));
         m_spinnerListStrings.add(res.getString(R.string.getupHistory_spinner_str5));
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_spinnerListStrings);
+        m_kindSpinnerListStrings.add("起床时间");
+        m_kindSpinnerListStrings.add("睡觉时间");
+        m_kindSpinnerListStrings.add("睡眠时长");
+
+        ArrayAdapter<String> kindAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m_kindSpinnerListStrings);
+        kindAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        m_kindSpinner.setAdapter(kindAdapter);
+        m_kindSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        m_kindFilterID = KindFilter.GET_UP;
+                        break;
+                    case 1:
+                        m_kindFilterID = KindFilter.SLEEP_TIME;
+                        break;
+                    case 2:
+                        m_kindFilterID = KindFilter.SLEEP_DURATION;
+                        break;
+                    default:
+                        m_kindFilterID = KindFilter.GET_UP;
+                        break;
+                }
+                //每次更新过滤选项，重新向服务器获取数据
+                mUpdateList();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m_spinnerListStrings);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         m_spinner.setAdapter(adapter);
         m_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -197,7 +260,7 @@ public class GetUpHistory extends Activity {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                //startActivity(intent);
+                startActivity(intent);
             }
         });
 
@@ -208,30 +271,77 @@ public class GetUpHistory extends Activity {
     }
 
     private void mInitList() {
-        times.clear();                         //清空睡眠数据缓存
+        sleeptimes.clear();                         //清空睡眠数据缓存
+        durationData.clear();
         m_listViewStrings.clear();             //清空界面列表项数据缓存
-
         //解析服务器返回数据
-        int id = 0;
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(m_responseInfo).getAsJsonObject();
         JsonArray jsonArray = jsonObject.getAsJsonArray("data");
+        if (m_kindFilterID == KindFilter.GET_UP) {
+            for (JsonElement element : jsonArray) {
+                String current = element.getAsString();
+                String strWords[] = current.split(" ");
+                String strDates[] = strWords[0].split("-");
+                String strTimes[] = strWords[1].split(":");
 
-        for (JsonElement element : jsonArray) {
-            id++;
-            String current = element.getAsString();
-            String strWords[] = current.split(" ");
-            String strDates[] = strWords[0].split("-");
-            String strTimes[] = strWords[1].split(":");
+                if (!current.equals("")) {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("ItemImage", R.drawable.ic_dialog_time);
+                    map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
+                            "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
+                    map.put("ItemID", strWords[0]);
+                    m_listViewStrings.add(map);
 
-            if (!current.equals("")) {
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("ItemImage", R.drawable.ic_dialog_time);
-                map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
-                        "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
-                map.put("ItemID", "记录" + id);
-                m_listViewStrings.add(map);
-                times.add(current);
+                    sleeptimes.put(strWords[0], strWords[1]);
+                }
+            }
+        } else if (m_kindFilterID == KindFilter.SLEEP_TIME) {
+            for (JsonElement element : jsonArray) {
+                JsonObject current = element.getAsJsonObject();
+                String date = current.keySet().iterator().next();
+                String time = current.get(date).getAsString();
+                String strWords[] = time.split(" ");
+                String strDates[] = strWords[0].split("-");
+                String strTimes[] = strWords[1].split(":");
+
+                Log.d("Variables", "date: " + date + " || time: " + time);
+                if (!current.equals("")) {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("ItemImage", R.drawable.ic_dialog_time);
+                    map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
+                            "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
+                    map.put("ItemID", date);
+                    m_listViewStrings.add(map);
+
+                    sleeptimes.put(date, strWords[1]);
+                }
+            }
+        } else if (m_kindFilterID == KindFilter.SLEEP_DURATION) {
+            for (JsonElement element : jsonArray) {
+                JsonObject current = element.getAsJsonObject();
+                String date = current.keySet().iterator().next();
+                JsonObject duration = current.get(date).getAsJsonObject();
+                String totalSleep = duration.get("totalsleep").getAsString();
+                String deepSleep = duration.get("deepsleep").getAsString();
+                String lightSleep = duration.get("lightsleep").getAsString();
+                Log.d("Variables", "totalsleep: " + totalSleep +
+                        " || deepsleep: " + deepSleep + " || lightsleep: " + lightSleep);
+                if (!current.equals("")) {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("ItemImage", R.drawable.ic_dialog_time);
+                    map.put("ItemTitle", "\n睡眠时长：" + totalSleep + "h" +
+                            "\n浅睡时长：" + lightSleep + "h" +
+                            "\n深睡时长：" + deepSleep + "h");
+                    map.put("ItemID", date);
+                    m_listViewStrings.add(map);
+
+                    LinkedHashMap<String, String> durationMap = new LinkedHashMap<>();
+                    durationMap.put("totalsleep", totalSleep);
+                    durationMap.put("deepsleep", deepSleep);
+                    durationMap.put("lightsleep", lightSleep);
+                    durationData.put(date, durationMap);
+                }
             }
         }
         m_simpleAdapter = new SimpleAdapter(this, m_listViewStrings,
@@ -307,8 +417,16 @@ public class GetUpHistory extends Activity {
                 start = "";
                 end = "";
             }
-            //Log.d("Variable", start + " || " + end);
-            m_responseInfo = WebService.executeHttpGetWithThreeParams(m_username, start, end, WebService.State.GetUpTimeHistory);
+
+            WebService.State state = WebService.State.GetUpTimeHistory;
+            if (m_kindFilterID == KindFilter.GET_UP) {
+                state = WebService.State.GetUpTimeHistory;
+            } else if (m_kindFilterID == KindFilter.SLEEP_TIME) {
+                state = WebService.State.GetSleepTimeHistory;
+            } else if (m_kindFilterID == KindFilter.SLEEP_DURATION) {
+                state = WebService.State.GetSleepDurationHistory;
+            }
+            m_responseInfo = WebService.executeHttpGetWithThreeParams(m_username, start, end, state);
             Log.i("ResultData", "返回数据为：" + m_responseInfo);
             m_handler.post(new Runnable() {
                 @Override

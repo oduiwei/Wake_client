@@ -10,13 +10,13 @@
         android:src="@drawable/btn_login" />
 
     <TextView
+        android:id="@+id/idItem"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
-        android:id="@+id/idItem"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/background_dark"
-        android:textSize="20dp" />
+        android:textSize="14sp" />
 
     <TextView
         android:layout_width="wrap_content"

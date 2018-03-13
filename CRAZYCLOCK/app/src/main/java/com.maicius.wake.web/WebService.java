@@ -34,10 +34,12 @@ public class WebService extends Activity{
         SetGetUpTip,
         GetGetUpTip,
         GetUpTimeHistory,
-        GetSleepTimeHistory
+        GetSleepTimeHistory,
+        GetSleepDurationHistory
     }
     // IP地址
-    private static String IP = "192.168.137.1:8080";
+    //private static String IP = "192.168.137.1:8080";
+    private static String IP = "172.21.81.1:8080";
     private static String base = "http://" + IP;
     /**
      * DoGet
@@ -82,24 +84,35 @@ public class WebService extends Activity{
         return "404";
     }
 
+    /**
+     * 执行包含三个参数的HTTP GET请求处理
+     * @param param1 --> 参数1
+     * @param param2 --> 参数2
+     * @param param3 --> 参数3
+     * @param state  --> 具体请求什么数据
+     * @return       --> 返回结果字符串
+     */
     public static String executeHttpGetWithThreeParams(String param1, String param2, String param3, State state) {
         String path = "";
         switch (state) {
+            // 获取用户某段时间起床时间记录
             // param1 --> username || param2 --> start || param3 --> end
             case GetUpTimeHistory:
                 path = base + "/GetUpTimeHistory?username=" + param1 + "&start=" + param2 + "&end=" + param3;
                 break;
+            // 获取用户某段时间睡觉时间记录
             // param1 --> username || param2 --> start || param3 --> end
             case GetSleepTimeHistory:
                 path = base + "/GetSleepTimeHistory?username=" + param1 + "&start=" + param2 + "&end=" + param3;
                 break;
+            // 获取用户某段时间睡眠时长记录
+            // param1 --> username || param2 --> start || param3 --> end
+            case GetSleepDurationHistory:
+                path = base + "/GetSleepDurationHistory?username=" + param1 + "&start=" + param2 + "&end=" + param3;
+                break;
         }
 
         return doHttpGet(path);
-    }
-
-    public static String executeHttpGetWithTwoParams(String param1, String param2, State state) {
-        return "";
     }
 
     /**
