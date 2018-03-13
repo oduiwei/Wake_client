@@ -127,4 +127,9 @@
     <string name="getupHistory_spinner_str3">最近一月</string>
     <string name="getupHistory_spinner_str4">最近一年</string>
     <string name="getupHistory_spinner_str5">自定义</string>
+
+    // friend list activity menu
+    <string name="item_add_friend">添加好友</string>
+    <string name="item_delete_friend">删除好友</string>
+    <string name="item_set_intimacy">设置为亲友</string>
 </resources>

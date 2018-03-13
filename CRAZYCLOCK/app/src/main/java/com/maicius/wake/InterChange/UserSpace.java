@@ -241,7 +241,7 @@ public class UserSpace extends NetEventActivity {
         image_sleepHistory.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Intent intent = new Intent();
-                intent.setClass(UserSpace.this, SleepHistory.class);
+                intent.setClass(UserSpace.this, GetUpHistory.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("username", MainActivity.s_userName);
                 intent.putExtras(bundle);

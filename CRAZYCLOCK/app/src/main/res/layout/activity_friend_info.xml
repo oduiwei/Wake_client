@@ -13,8 +13,8 @@
         android:id="@+id/listView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/signatureTextView"
-        android:layout_above="@+id/deleteBtn" />
+        android:layout_below="@+id/signatureTextView" />
+        <!--android:layout_above="@+id/deleteBtn" />-->
 
     <ImageView
         android:layout_width="wrap_content"
@@ -91,15 +91,15 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-    <Button
-        android:text="删除该好友"
-        android:layout_height="wrap_content"
-        android:id="@+id/deleteBtn"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_width="match_parent"
-        android:textColor="@android:color/background_light"
-        android:background="@android:color/holo_red_dark"
-        android:textSize="20sp" />
+    <!--<Button-->
+        <!--android:text="删除该好友"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/deleteBtn"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:textColor="@android:color/background_light"-->
+        <!--android:background="@android:color/holo_red_dark"-->
+        <!--android:textSize="20sp" />-->
 
 </RelativeLayout>

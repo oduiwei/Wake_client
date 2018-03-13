@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -15,7 +17,6 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.maicius.wake.InterChange.SleepHistory;
 import com.maicius.wake.alarmClock.MainActivity;
 import com.maicius.wake.alarmClock.R;
 import com.maicius.wake.web.WebService;
@@ -33,6 +34,34 @@ public class FriendsList extends Activity {
     private String returnInfo;
     private List<Map<String, Object>> listItems;
 
+    /**
+     * 初始化右上角菜单内容
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.friend_list_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * 设置右上角菜单item点击事件
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_add_friend:
+                startActivity(new Intent(this, AddFriend.class));
+                return true;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("Activity", "Enter Activity --> FriendList");
         super.onCreate(savedInstanceState);
@@ -46,16 +75,24 @@ public class FriendsList extends Activity {
 
         listItems = new ArrayList<Map<String, Object>>();
 
-        Button addFriendBtn = (Button) findViewById(R.id.addFriendBtn);
-        addFriendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(FriendsList.this, AddFriend.class));
-            }
-        });
+//        Button addFriendBtn = (Button) findViewById(R.id.addFriendBtn);
+//        addFriendBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(FriendsList.this, AddFriend.class));
+//            }
+//        });
 
         //创建一个新的线程，用来获取好友信息
         new Thread(new MyThread()).start();
+    }
+
+    @Override
+    protected void onRestart() {
+        listItems.clear();
+        dialog.show();
+        new Thread(new MyThread()).start();
+        super.onRestart();
     }
 
     private void initList() {

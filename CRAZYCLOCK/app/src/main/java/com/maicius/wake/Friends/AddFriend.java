@@ -190,8 +190,13 @@ public class AddFriend extends Activity implements ActionBar.TabListener, Contac
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    //Toast.makeText(AddFriend.this, returnInfo, Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
+                    //判断是否连接上服务器
+                    if (returnInfo.equals("404")) {
+                        Toast.makeText(AddFriend.this, "查询失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        //AddFriend.this.finish();
+                        return;
+                    }
                     if (returnInfo.equals("failed")) {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddFriend.this);
                         alertDialog.setTitle("错误信息").setMessage("错误！请检查输入是否正确");
@@ -232,11 +237,18 @@ public class AddFriend extends Activity implements ActionBar.TabListener, Contac
     private class AddFriendThread implements Runnable {
         @Override
         public void run() {
-            returnInfo = WebService.friendOperation(MainActivity.s_userName, addFriendName, WebService.State.AddFriend);
+            returnInfo = WebService.executeHttpGetWithTwoParams(MainActivity.s_userName, addFriendName, WebService.State.AddFriend);
+            Log.i("ReturnData", "返回数据为：" + returnInfo);
             handler.post(new Runnable() {
                 @Override
                 public void run() {
                     dialog.dismiss();
+                    //判断是否连接上服务器
+                    if (returnInfo.equals("404")) {
+                        Toast.makeText(AddFriend.this, "操作失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        AddFriend.this.finish();
+                        return;
+                    }
                     if (returnInfo.equals("failed")) {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddFriend.this);
                         alertDialog.setTitle("错误信息").setMessage("添加失败!\n请检查网络连接或重试");
@@ -266,7 +278,8 @@ public class AddFriend extends Activity implements ActionBar.TabListener, Contac
                             alertDialog.create().show();
                         } else if (returnInfo.equals("success")) {
                             Toast.makeText(AddFriend.this, "添加成功!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(AddFriend.this, FriendsList.class));
+                            //startActivity(new Intent(AddFriend.this, FriendsList.class));
+                            AddFriend.this.finish();
                         } else {
                             alertDialog.setMessage("添加失败！\n请检查网络连接或重试");
                             alertDialog.create().show();

@@ -7,6 +7,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -34,10 +37,51 @@ public class FriendInfo extends Activity {
     private String phoneNum;
     private String signature;
     private AlertDialog.Builder warningDialog;
+    private AlertDialog.Builder intimacyDialog;
     private String returnInfo;
     private String tip;
     private ProgressDialog progressDialog;
     private static Handler handler = new Handler();
+    private Operation oper;
+
+    private enum Operation {
+        DeleteFriend,
+        SetIntimacy
+    }
+
+    /**
+     * 初始化右上角菜单内容
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.friend_info_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * 设置右上角菜单item点击事件
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_friend:
+                oper = Operation.DeleteFriend;
+                warningDialog.show();
+                return true;
+            case R.id.menu_item_set_intimacy:
+                oper = Operation.SetIntimacy;
+                intimacyDialog.show();
+                return true;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +177,7 @@ public class FriendInfo extends Activity {
             }
         });
 
-        //创建警告框
+        //创建删除好友警告框
         warningDialog = new AlertDialog.Builder(this);
         warningDialog.setTitle("警告")
                 .setIcon(R.drawable.ic_warning)
@@ -141,7 +185,8 @@ public class FriendInfo extends Activity {
         warningDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                new Thread(new MyThread()).start();
+                new Thread(new UpdateThread()).start();
+                FriendInfo.this.finish();
             }
         });
         warningDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -152,28 +197,62 @@ public class FriendInfo extends Activity {
         });
         warningDialog.create();
 
-        Button deleteBtn = (Button) findViewById(R.id.deleteBtn);
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
+        //创建设置亲友提示框
+        intimacyDialog = new AlertDialog.Builder(this);
+        intimacyDialog.setTitle("提示")
+                .setIcon(R.drawable.ic_warning)
+                .setMessage("设置为亲友后睡眠数据将不再是隐私\n确定添加亲友？");
+        intimacyDialog.setPositiveButton("确定", new DialogInterface.OnClickListener(){
             @Override
-            public void onClick(View view) {
-                warningDialog.show();
+            public void onClick(DialogInterface dialog, int which) {
+                new Thread(new UpdateThread()).start();
+            }
+        }).setNegativeButton("取消", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
             }
         });
+        intimacyDialog.create();
+
+//        Button deleteBtn = (Button) findViewById(R.id.deleteBtn);
+//        deleteBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                warningDialog.show();
+//            }
+//        });
     }
 
-    private class MyThread implements Runnable {
+    private class UpdateThread implements Runnable {
         @Override
         public void run() {
-            returnInfo = WebService.friendOperation(MainActivity.s_userName, phoneNum, WebService.State.DeleteFriend);
+            WebService.State tmp;
+            if (oper == Operation.DeleteFriend) {
+                tmp = WebService.State.DeleteFriend;
+            } else if (oper == Operation.SetIntimacy) {
+                tmp = WebService.State.SetIntimacyRelation;
+            } else {
+                tmp = WebService.State.DeleteFriend;
+            }
+            returnInfo = WebService.executeHttpGetWithTwoParams(MainActivity.s_userName, phoneNum, tmp);
+            Log.i("ReturnData", "返回数据为：" + returnInfo);
             handler.post(new Runnable() {
                 @Override
                 public void run() {
+                    //判断是否连接上服务器
+                    if (returnInfo.equals("404")) {
+                        Toast.makeText(FriendInfo.this, "操作失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        FriendInfo.this.finish();
+                        return;
+                    }
+
                     if (returnInfo.equals("success")) {
-                        Toast.makeText(FriendInfo.this, "删除成功！", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(FriendInfo.this, FriendsList.class));
+                        Toast.makeText(FriendInfo.this, "操作成功！", Toast.LENGTH_SHORT).show();
+                        //startActivity(new Intent(FriendInfo.this, FriendsList.class));
                         return;
                     } else if (returnInfo.equals("failed")) {
-                        Toast.makeText(FriendInfo.this, "删除失败，请重试！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FriendInfo.this, "操作失败，请重试！", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
                         Toast.makeText(FriendInfo.this, "返回值为:" + returnInfo, Toast.LENGTH_SHORT).show();

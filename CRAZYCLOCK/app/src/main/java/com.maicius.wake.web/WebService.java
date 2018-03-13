@@ -35,11 +35,12 @@ public class WebService extends Activity{
         GetGetUpTip,
         GetUpTimeHistory,
         GetSleepTimeHistory,
-        GetSleepDurationHistory
+        GetSleepDurationHistory,
+        SetIntimacyRelation
     }
     // IP地址
     //private static String IP = "192.168.137.1:8080";
-    private static String IP = "172.21.81.1:8080";
+    private static String IP = "172.18.205.1:8080";
     private static String base = "http://" + IP;
     /**
      * DoGet
@@ -82,6 +83,36 @@ public class WebService extends Activity{
 
         }
         return "404";
+    }
+
+    /**
+     * 执行包含两个参数的HTTP GET请求处理
+     * @param param1 --> 参数1
+     * @param param2 --> 参数2
+     * @param state  --> 具体请求类型
+     * @return       --> 返回结果字符串
+     */
+    public static String executeHttpGetWithTwoParams(String param1, String param2, State state) {
+        String path = "";
+        switch (state) {
+            // 添加好友
+            // param1 --> username || param2 --> friendName
+            case AddFriend:
+                path = base + "/AddFriend";
+                path += "?username=" + param1 + "&friendName=" + param2;
+                break;
+            // 删除用户的某个好友
+            // param1 --> username || param2 --> friendName
+            case DeleteFriend:
+                path = base + "/DeleteFriend";
+                path += "?username=" + param1 + "&friendName=" + param2;
+                break;
+            case SetIntimacyRelation:
+                path = base + "/SetRelation";
+                path += "?username=" + param1 + "&friendName=" + param2;
+                break;
+        }
+        return doHttpGet(path);
     }
 
     /**

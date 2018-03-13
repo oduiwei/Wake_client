@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_item_delete_friend"
+        android:title="@string/item_delete_friend"
+        android:icon="@drawable/ic_menu_desk_clock"/>
+    <item android:id="@+id/menu_item_set_intimacy"
+        android:title="@string/item_set_intimacy"
+        android:icon="@drawable/ic_menu_alarms" />
+</menu>
