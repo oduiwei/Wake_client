@@ -36,11 +36,12 @@ public class WebService extends Activity{
         GetUpTimeHistory,
         GetSleepTimeHistory,
         GetSleepDurationHistory,
-        SetIntimacyRelation
+        SetIntimacyRelation,
+        CheckIntimacyRelation
     }
     // IP地址
     //private static String IP = "192.168.137.1:8080";
-    private static String IP = "172.18.205.1:8080";
+    private static String IP = "172.26.6.1:8080";
     private static String base = "http://" + IP;
     /**
      * DoGet
@@ -107,8 +108,16 @@ public class WebService extends Activity{
                 path = base + "/DeleteFriend";
                 path += "?username=" + param1 + "&friendName=" + param2;
                 break;
+            // 设置亲友关系
+            // param1 --> username || param2 --> friendName
             case SetIntimacyRelation:
                 path = base + "/SetRelation";
+                path += "?username=" + param1 + "&friendName=" + param2;
+                break;
+            // 检查是否为亲友关系
+            // param1 --> username || param2 --> friendName
+            case CheckIntimacyRelation:
+                path = base + "/CheckRelation";
                 path += "?username=" + param1 + "&friendName=" + param2;
                 break;
         }

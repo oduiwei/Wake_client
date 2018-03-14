@@ -46,7 +46,8 @@ public class FriendInfo extends Activity {
 
     private enum Operation {
         DeleteFriend,
-        SetIntimacy
+        SetIntimacy,
+        CheckIntimacy
     }
 
     /**
@@ -132,12 +133,8 @@ public class FriendInfo extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (i == 0)        //查看好友起床信息
                 {
-                    Intent intent = new Intent();
-                    intent.setClass(FriendInfo.this, GetUpHistory.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("username", phoneNum);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+                    oper = Operation.CheckIntimacy;
+                    new Thread(new UpdateThread()).start();
                 }
                 else if(i ==1){
                     Intent intent = new Intent();
@@ -232,6 +229,8 @@ public class FriendInfo extends Activity {
                 tmp = WebService.State.DeleteFriend;
             } else if (oper == Operation.SetIntimacy) {
                 tmp = WebService.State.SetIntimacyRelation;
+            } else if (oper == Operation.CheckIntimacy) {
+                tmp = WebService.State.CheckIntimacyRelation;
             } else {
                 tmp = WebService.State.DeleteFriend;
             }
@@ -253,6 +252,20 @@ public class FriendInfo extends Activity {
                         return;
                     } else if (returnInfo.equals("failed")) {
                         Toast.makeText(FriendInfo.this, "操作失败，请重试！", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else if (returnInfo.equals("already")) {
+                        Toast.makeText(FriendInfo.this, "你们已经是亲友关系啦", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else if (returnInfo.equals("isrelation")) {
+                        Intent intent = new Intent();
+                        intent.setClass(FriendInfo.this, GetUpHistory.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("username", phoneNum);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        return;
+                    } else if (returnInfo.equals("notrelation")) {
+                        Toast.makeText(FriendInfo.this, "用户数据已保密，成为亲友关系才能查看哦", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
                         Toast.makeText(FriendInfo.this, "返回值为:" + returnInfo, Toast.LENGTH_SHORT).show();

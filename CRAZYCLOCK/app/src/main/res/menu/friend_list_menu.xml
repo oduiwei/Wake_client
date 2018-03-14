@@ -4,4 +4,7 @@
     <item android:id="@+id/menu_item_add_friend"
         android:title="@string/item_add_friend"
         android:icon="@drawable/ic_menu_desk_clock"/>
+    <item android:id="@+id/menu_item_recommand_friend"
+        android:title="@string/item_recommand_friend"
+        android:icon="@drawable/ic_menu_desk_clock"/>
 </menu>

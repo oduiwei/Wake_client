@@ -107,6 +107,12 @@ public class LogIn extends NetEventActivity {
                     @Override
                     public void run() {
                         dialog.dismiss();
+                        //判断是否连接上服务器
+                        if (info.equals("404")) {
+                            Toast.makeText(LogIn.this, "查询失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                            //LogIn.this.finish();
+                            return;
+                        }
                         if (info.equals("failed")) {
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(LogIn.this);
                             alertDialog.setTitle("登陆信息").setMessage("登陆失败：用户名或密码错误！");
