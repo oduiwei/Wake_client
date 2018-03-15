@@ -101,7 +101,7 @@ public class SleepHistory extends Activity {
             String key = tmp.keySet().iterator().next();
             String value = tmp.get(key).getAsString();
 
-            HashMap<String, Object> map = new HashMap<>();
+            HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("ItemImage", R.drawable.ic_dialog_time);
             map.put("ItemTitle", value);
             map.put("ItemID", "时间" + id + ": ");

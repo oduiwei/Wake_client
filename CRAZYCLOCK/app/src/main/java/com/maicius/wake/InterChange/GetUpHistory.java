@@ -43,8 +43,8 @@ import java.util.LinkedHashMap;
 public class GetUpHistory extends Activity {
 
     static public ArrayList<String> times = new ArrayList<String>();
-    static public LinkedHashMap<String, String> sleeptimes = new LinkedHashMap<>(); //睡眠数据缓存,将会被用来渲染图表
-    static public LinkedHashMap<String, LinkedHashMap<String, String>> durationData = new LinkedHashMap<>(); //睡眠时长缓存，将被用来渲染图表
+    static public LinkedHashMap<String, String> sleeptimes = new LinkedHashMap<String, String>(); //睡眠数据缓存,将会被用来渲染图表
+    static public LinkedHashMap<String, LinkedHashMap<String, String>> durationData = new LinkedHashMap<String, LinkedHashMap<String, String>>(); //睡眠时长缓存，将被用来渲染图表
 
     private static Handler m_handler = new Handler();
     private SimpleAdapter m_simpleAdapter;
@@ -54,7 +54,7 @@ public class GetUpHistory extends Activity {
     private ProgressDialog m_proDialog;
     private ArrayList<HashMap<String, Object>> m_listViewStrings = new ArrayList<HashMap<String, Object>>();//睡眠数据与界面列表对象缓存
     private ArrayList<String> m_spinnerListStrings = new ArrayList<String>();  //选择时间段下拉菜单列表内容
-    private ArrayList<String> m_kindSpinnerListStrings = new ArrayList<>();    //选择数据类型下拉菜单列表内容
+    private ArrayList<String> m_kindSpinnerListStrings = new ArrayList<String>();    //选择数据类型下拉菜单列表内容
     private String m_responseInfo = "";      //从服务器获取的数据
     private String m_username;
     private IChart m_timeChart = new MLineChart();  //折线图
@@ -156,7 +156,7 @@ public class GetUpHistory extends Activity {
         m_kindSpinnerListStrings.add("睡觉时间");
         m_kindSpinnerListStrings.add("睡眠时长");
 
-        ArrayAdapter<String> kindAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m_kindSpinnerListStrings);
+        ArrayAdapter<String> kindAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_kindSpinnerListStrings);
         kindAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         m_kindSpinner.setAdapter(kindAdapter);
         m_kindSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -186,7 +186,7 @@ public class GetUpHistory extends Activity {
             }
         });
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m_spinnerListStrings);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_spinnerListStrings);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         m_spinner.setAdapter(adapter);
         m_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -286,7 +286,7 @@ public class GetUpHistory extends Activity {
                 String strTimes[] = strWords[1].split(":");
 
                 if (!current.equals("")) {
-                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> map = new HashMap<String, Object>();
                     map.put("ItemImage", R.drawable.ic_dialog_time);
                     map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
                             "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
@@ -307,7 +307,7 @@ public class GetUpHistory extends Activity {
 
                 Log.d("Variables", "date: " + date + " || time: " + time);
                 if (!current.equals("")) {
-                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> map = new HashMap<String, Object>();
                     map.put("ItemImage", R.drawable.ic_dialog_time);
                     map.put("ItemTitle", "\n日期：" + strDates[0] + "年" + strDates[1] + "月" + strDates[2] + "日" +
                             "\n时间：" + strTimes[0] + "时" + strTimes[1] + "分" + strTimes[2] + "秒\n");
@@ -328,7 +328,7 @@ public class GetUpHistory extends Activity {
                 Log.d("Variables", "totalsleep: " + totalSleep +
                         " || deepsleep: " + deepSleep + " || lightsleep: " + lightSleep);
                 if (!current.equals("")) {
-                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> map = new HashMap<String, Object>();
                     map.put("ItemImage", R.drawable.ic_dialog_time);
                     map.put("ItemTitle", "\n睡眠时长：" + totalSleep + "h" +
                             "\n浅睡时长：" + lightSleep + "h" +
@@ -336,7 +336,7 @@ public class GetUpHistory extends Activity {
                     map.put("ItemID", date);
                     m_listViewStrings.add(map);
 
-                    LinkedHashMap<String, String> durationMap = new LinkedHashMap<>();
+                    LinkedHashMap<String, String> durationMap = new LinkedHashMap<String, String>();
                     durationMap.put("totalsleep", totalSleep);
                     durationMap.put("deepsleep", deepSleep);
                     durationMap.put("lightsleep", lightSleep);

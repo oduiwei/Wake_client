@@ -26,13 +26,15 @@ import com.maicius.wake.web.ConnectionDetector;
 import com.maicius.wake.web.WebService;
 
 /**
- * Created by Maicius on 2016/6/14.
+ * 判断是否起床的提示框
  */
 public class Notification extends Activity {
 
     private ProgressDialog proDialog;
     private DBManager dbManager;
     String greeting, greeting_sender;
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbManager = new DBManager(this);
@@ -83,7 +85,7 @@ public class Notification extends Activity {
             }
 
             computeTimeDiff();
-            proDialog.dismiss();
+            //proDialog.dismiss();
         }
     }
 

@@ -41,7 +41,7 @@ public class WebService extends Activity{
     }
     // IP地址
     //private static String IP = "192.168.137.1:8080";
-    private static String IP = "172.26.6.1:8080";
+    private static String IP = "172.16.223.1:8080";
     private static String base = "http://" + IP;
     /**
      * DoGet

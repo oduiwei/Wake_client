@@ -291,9 +291,17 @@ public class AlarmAlertFullScreen extends Activity {
                 @Override
                 public void run() {
                     GreetingUser user;
-                    if (greetingInfo.equals("")) {
-                    }
-                    else {
+                    if (greetingInfo == null) {
+                        Log.e("Error", "获取起床提示失败!");
+                        return;
+                    }//判断是否连接上服务器
+                    if (greetingInfo.equals("404")) {
+                        Toast.makeText(AlarmAlertFullScreen.this, "获取数据失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        AlarmAlertFullScreen.this.finish();
+                        return;
+                    } else if (greetingInfo.equals("")) {
+                        Log.e("Error", "获取起床提示数据为空!");
+                    } else {
                         StringTokenizer st = new StringTokenizer(greetingInfo, "#");
                         String greeting = st.nextToken();
                         String send_user = st.nextToken();
