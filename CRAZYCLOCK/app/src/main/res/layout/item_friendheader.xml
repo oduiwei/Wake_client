@@ -38,14 +38,14 @@
         android:layout_alignStart="@+id/nickNameTextView" />
 
     <ImageView
+        android:id="@+id/portraitImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_portrait"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:layout_marginLeft="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="12dp"
-        android:id="@+id/portraitImageView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:src="@drawable/ic_portrait" />
 </RelativeLayout>

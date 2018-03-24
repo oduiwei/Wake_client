@@ -37,14 +37,19 @@ public class WebService extends Activity{
         GetSleepTimeHistory,
         GetSleepDurationHistory,
         SetIntimacyRelation,
-        CheckIntimacyRelation
+        CheckIntimacyRelation,
+        GetFriendsSleepRank,
+        GetSleepAdvice
     }
     // IP地址
-    //private static String IP = "192.168.137.1:8080";
-    private static String IP = "172.16.223.1:8080";
+    private static String IP = "192.168.137.1:8080";
+//    private static String IP = "172.20.91.1:8080";
     private static String base = "http://" + IP;
+
     /**
-     * DoGet
+     * 执行HTTP GET请求
+     * @param path --> 请求URL路径
+     * @return     --> 返回服务器数据或是错误信息
      */
     private static String doHttpGet(String path){
         Log.i("URL", "请求地址是：" + path);
@@ -84,6 +89,31 @@ public class WebService extends Activity{
 
         }
         return "404";
+    }
+
+    /**
+     执行包含一个参数的HTTP GET请求处理
+     * @param param --> 参数
+     * @param state  --> 具体请求类型
+     * @return       --> 返回结果字符串
+     */
+    public static String executeHttpGetWithOneParams(String param, State state) {
+        String path = "";
+        switch (state) {
+            // 获取最近睡眠排行榜数据
+            // param --> username
+            case GetFriendsSleepRank:
+                path = base + "/GetFriendsSleepRank";
+                path += "?username=" + param;
+                break;
+            //获取最近睡眠建议
+            // param --> username
+            case GetSleepAdvice:
+                path = base + "/GetSleepAdvice";
+                path += "?username=" + param;
+                break;
+        }
+        return doHttpGet(path);
     }
 
     /**

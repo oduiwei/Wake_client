@@ -133,4 +133,5 @@
     <string name="item_delete_friend">删除好友</string>
     <string name="item_set_intimacy">设置为亲友</string>
     <string name="item_recommand_friend">推荐好友</string>
+    <string name="item_sleep_advice">睡眠建议</string>
 </resources>

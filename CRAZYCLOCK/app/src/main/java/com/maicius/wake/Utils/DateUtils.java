@@ -18,9 +18,13 @@ public class DateUtils {
     private static int getMondayPlus() {
         Calendar cd = Calendar.getInstance();
 
-        int dayOfWeek = cd.get(Calendar.DAY_OF_WEEK) + 6;
-
-        return 1 - dayOfWeek;
+        int dayOfWeek = cd.get(Calendar.DAY_OF_WEEK);
+        if (dayOfWeek == 0) {
+            // 今天是星期天
+            return -6;
+        } else {
+            return 2 - dayOfWeek;
+        }
     }
 
     private static int getYearPlus() {
